@@ -106,6 +106,36 @@ https://your-site-name.netlify.app/admin
 
 You can edit profile details, portfolio items, reviews, stats, skills, and upload thumbnail files from the website UI. The CMS saves changes back to GitHub automatically.
 
+## Custom Supabase Admin
+
+This project also supports a custom admin dashboard:
+
+```text
+/admin-login
+/admin-dashboard
+```
+
+Supabase setup:
+
+1. Open Supabase project.
+2. Go to `SQL Editor`.
+3. Paste and run the contents of `supabase-setup.sql`.
+4. Go to `Project Settings > API`.
+5. Copy `Project URL` and `anon public` key.
+6. Add these variables in Netlify `Site configuration > Environment variables`:
+
+```text
+VITE_SUPABASE_URL=https://lheuyymjpykkwwmulmwn.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key
+```
+
+7. Go to Supabase `Authentication > Users`.
+8. Create your admin user email/password.
+9. Redeploy Netlify.
+10. Open `/admin-login`.
+
+The admin dashboard saves portfolio content to Supabase and uploads thumbnails to Supabase Storage.
+
 ## Push To GitHub
 
 After creating an empty GitHub repository, use:

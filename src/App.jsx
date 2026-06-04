@@ -3,20 +3,15 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, BriefcaseBusiness, ExternalLink, Mail, MessageCircle, Phone, Play, Send, Star, Video, Wand2 } from "lucide-react";
 import Button from "./components/Button.jsx";
+import { AdminDashboard, AdminLogin } from "./components/Admin.jsx";
 import { CategoryCard, PortfolioCard, TestimonialCard } from "./components/Card.jsx";
 import Section from "./components/Section.jsx";
+import { useSiteContent } from "./hooks/useSiteContent.js";
 import {
+  certifications as fallbackCertifications,
   filters,
-  portfolioItems,
-  processSteps,
-  profile,
-  sellingPoints,
   serviceCategories,
-  certifications,
-  skills,
-  stats,
-  testimonials,
-  tools,
+  skills as fallbackSkills,
 } from "./data/portfolioData.js";
 
 const reveal = {
@@ -49,7 +44,7 @@ function Nav() {
   );
 }
 
-function Hero() {
+function Hero({ profile, stats }) {
   return (
     <section id="home" className="relative min-h-screen overflow-hidden pt-16">
       <div className="absolute inset-0 cinematic-bg" />
@@ -155,6 +150,21 @@ function FilterPills({ active, setActive, options }) {
 }
 
 function App() {
+  if (window.location.pathname === "/admin-login") return <AdminLogin />;
+  if (window.location.pathname === "/admin-dashboard") return <AdminDashboard />;
+
+  const { content } = useSiteContent();
+  const {
+    profile,
+    portfolioItems,
+    processSteps,
+    sellingPoints,
+    stats,
+    testimonials,
+    tools,
+    skills = fallbackSkills,
+    certifications = fallbackCertifications,
+  } = content;
   const [activeFilter, setActiveFilter] = useState("All");
   const visiblePortfolio = useMemo(
     () => (activeFilter === "All" ? portfolioItems : portfolioItems.filter((item) => item.category === activeFilter)),
@@ -164,7 +174,7 @@ function App() {
   return (
     <main className="min-h-screen bg-ink text-white">
       <Nav />
-      <Hero />
+      <Hero profile={profile} stats={stats} />
 
       <Section id="about" eyebrow="About" title="Creative editing with ad strategy built in.">
         <motion.div
