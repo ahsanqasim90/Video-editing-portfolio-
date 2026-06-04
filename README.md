@@ -47,6 +47,44 @@ The contact links and page layout live in:
 src/App.jsx
 ```
 
+## Add Real Portfolio Videos
+
+Put your thumbnail images and short video files in:
+
+```text
+public/portfolio/
+```
+
+Example files:
+
+```text
+public/portfolio/cash-next-thumbnail.jpg
+public/portfolio/cash-next-video.mp4
+```
+
+Then open:
+
+```text
+src/data/portfolioData.js
+```
+
+Add or update a project like this:
+
+```js
+{
+  title: "Cash Next Product Videos",
+  category: "Product Ads",
+  niche: "Product Video Ads",
+  description: "Short description of the project.",
+  tools: ["CapCut", "Premiere Pro"],
+  result: "What the video was made to achieve.",
+  thumbnailUrl: "/portfolio/cash-next-thumbnail.jpg",
+  videoUrl: "/portfolio/cash-next-video.mp4"
+}
+```
+
+If your video is on Google Drive, YouTube, Vimeo, or Upwork, use that link in `videoUrl` instead.
+
 ## Push To GitHub
 
 After creating an empty GitHub repository, use:

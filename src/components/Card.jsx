@@ -44,6 +44,17 @@ export function PortfolioCard({ item, index }) {
       className="group overflow-hidden rounded-lg border border-white/10 bg-panel shadow-premium"
     >
       <div className="relative aspect-video overflow-hidden bg-[radial-gradient(circle_at_30%_20%,rgba(110,231,249,.35),transparent_28%),radial-gradient(circle_at_78%_56%,rgba(244,199,106,.25),transparent_26%),linear-gradient(135deg,#141824,#07080c)]">
+        {item.thumbnailUrl ? (
+          <img
+            src={item.thumbnailUrl}
+            alt={`${item.title} thumbnail`}
+            className="absolute inset-0 h-full w-full object-cover opacity-85 transition duration-700 group-hover:scale-105 group-hover:opacity-100"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
+          />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/10 to-black/25" />
         <div className="absolute inset-x-5 top-5 flex items-center justify-between">
           <span className="rounded-full bg-black/45 px-3 py-1 text-xs font-semibold text-cyan ring-1 ring-white/10">{item.category}</span>
           <span className="h-3 w-3 rounded-full bg-coral shadow-[0_0_22px_rgba(255,128,102,.8)]" />
@@ -78,7 +89,7 @@ export function PortfolioCard({ item, index }) {
         </div>
         <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/10 pt-4">
           <p className="text-xs leading-5 text-white/55">{item.result}</p>
-          <a href="#contact" className="rounded-full bg-white px-4 py-2 text-sm font-bold text-ink transition hover:bg-cyan">
+          <a href={item.videoUrl || "#contact"} target={item.videoUrl?.startsWith("http") ? "_blank" : undefined} rel={item.videoUrl?.startsWith("http") ? "noreferrer" : undefined} className="rounded-full bg-white px-4 py-2 text-sm font-bold text-ink transition hover:bg-cyan">
             Watch
           </a>
         </div>

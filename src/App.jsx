@@ -12,6 +12,8 @@ import {
   profile,
   sellingPoints,
   serviceCategories,
+  certifications,
+  skills,
   stats,
   testimonials,
   tools,
@@ -99,10 +101,10 @@ function Hero() {
             {profile.name} | Premium AI ad creative
           </div>
           <h1 className="max-w-4xl text-5xl font-semibold leading-[1.02] text-white sm:text-7xl lg:text-8xl">
-            AI Ads Creator & Short-Form Video Editor
+            {profile.title}
           </h1>
           <p className="mt-7 max-w-2xl text-lg leading-8 text-white/70 sm:text-xl">
-            Helping brands turn raw ideas, products, and footage into scroll-stopping videos, AI ads, UGC-style creatives, and high-retention short-form content.
+            {profile.overview}
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Button href="#portfolio" icon={Play}>View Portfolio</Button>
@@ -119,7 +121,7 @@ function Hero() {
               {profile.phone}
             </a>
           </div>
-          <div className="mt-12 grid max-w-2xl grid-cols-3 gap-3">
+          <div className="mt-12 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label} className="rounded-lg border border-white/10 bg-white/[0.045] p-4">
                 <p className="text-2xl font-semibold text-white">{stat.value}</p>
@@ -172,7 +174,7 @@ function App() {
           className="grid gap-8 lg:grid-cols-[1.2fr_.8fr]"
         >
           <p className="text-2xl leading-10 text-white/78">
-            I create AI-powered ads, product videos, UGC-style videos, talking head edits, podcasts, reels, and brand content for clients across multiple niches. My work focuses on retention, clean visuals, strong pacing, captions, storytelling, and professional delivery.
+            I create viral short-form videos, Instagram Reels, TikTok edits, YouTube Shorts, product videos, AI ads, UGC-style videos, talking head edits, podcasts, and brand content for clients across multiple niches. My work focuses on retention, clean visuals, strong pacing, captions, storytelling, and professional delivery.
           </p>
           <div className="rounded-lg border border-white/10 bg-white/[0.045] p-6">
             <p className="text-sm uppercase tracking-[0.24em] text-gold">Creative focus</p>
@@ -238,6 +240,24 @@ function App() {
           {tools.map((tool) => (
             <motion.div key={tool} whileHover={{ y: -6 }} className="rounded-lg border border-white/10 bg-white/[0.045] p-5">
               <p className="text-lg font-semibold text-white">{tool}</p>
+            </motion.div>
+          ))}
+        </div>
+        <div className="mt-8 rounded-lg border border-white/10 bg-white/[0.04] p-6">
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.22em] text-gold">Upwork Skills</p>
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill) => (
+              <span key={skill} className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-sm text-white/68">
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          {certifications.map((certification) => (
+            <motion.div key={certification} whileHover={{ y: -5 }} className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm font-semibold text-white">{certification}</p>
+              <p className="mt-2 text-xs uppercase tracking-[0.18em] text-cyan">Certification</p>
             </motion.div>
           ))}
         </div>
