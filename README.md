@@ -85,6 +85,27 @@ Add or update a project like this:
 
 If your video is on Google Drive, YouTube, Vimeo, or Upwork, use that link in `videoUrl` instead.
 
+## Edit From Website Admin
+
+This project includes a CMS admin page:
+
+```text
+/admin
+```
+
+For real online editing, deploy the GitHub repo to Netlify, then enable:
+
+- Netlify Identity
+- Git Gateway
+
+After that, open:
+
+```text
+https://your-site-name.netlify.app/admin
+```
+
+You can edit profile details, portfolio items, reviews, stats, skills, and upload thumbnail files from the website UI. The CMS saves changes back to GitHub automatically.
+
 ## Push To GitHub
 
 After creating an empty GitHub repository, use:
