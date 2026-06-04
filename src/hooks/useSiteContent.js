@@ -15,7 +15,7 @@ export function useSiteContent() {
       const { data, error } = await supabase.from("site_content").select("content").eq("id", "main").single();
 
       if (isMounted) {
-        if (!error && data?.content) setContent(data.content);
+        if (!error && data?.content?.portfolioItems?.length) setContent(data.content);
         setLoading(false);
       }
     }

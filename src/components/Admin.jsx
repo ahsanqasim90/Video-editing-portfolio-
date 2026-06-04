@@ -98,7 +98,7 @@ export function AdminDashboard() {
       }
 
       const { data } = await supabase.from("site_content").select("content").eq("id", "main").single();
-      if (data?.content) setContent(data.content);
+      if (data?.content?.portfolioItems?.length) setContent(data.content);
       setSessionReady(true);
     }
 
