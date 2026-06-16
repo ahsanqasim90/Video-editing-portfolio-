@@ -380,6 +380,19 @@ function App() {
           </form>
         </div>
       </Section>
+      <footer className="border-t border-white/10 bg-black/30 px-5 py-7">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-center text-xs uppercase tracking-[0.22em] text-white/45 sm:flex-row sm:text-left"
+        >
+          <span>© {new Date().getFullYear()} {profile.name} Portfolio</span>
+          <span className="rounded-full border border-cyan/25 bg-cyan/5 px-4 py-2 text-cyan/80">
+            Design and developed by Innovex Resource Group Limited
+          </span>
+        </motion.div>
+      </footer>
     </main>
   );
 }
