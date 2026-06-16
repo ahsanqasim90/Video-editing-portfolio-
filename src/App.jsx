@@ -204,7 +204,7 @@ function App() {
   const [activeFilter, setActiveFilter] = useState("All");
   const visiblePortfolio = useMemo(
     () => (activeFilter === "All" ? portfolioItems : portfolioItems.filter((item) => item.category === activeFilter)),
-    [activeFilter]
+    [activeFilter, portfolioItems]
   );
 
   return (
@@ -248,7 +248,7 @@ function App() {
         <FilterPills active={activeFilter} setActive={setActiveFilter} options={filters} />
         <motion.div layout className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {visiblePortfolio.map((item, index) => (
-            <PortfolioCard key={item.title} item={item} index={index} />
+            <PortfolioCard key={item.id || item.title} item={item} index={index} />
           ))}
         </motion.div>
       </Section>
