@@ -7,5 +7,6 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || fallbackSupabaseUrl;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || fallbackSupabaseAnonKey;
 
 export const hasSupabaseConfig = Boolean(supabaseUrl && supabaseAnonKey);
+export const activeSupabaseUrl = supabaseUrl;
 
 export const supabase = hasSupabaseConfig ? createClient(supabaseUrl, supabaseAnonKey) : null;

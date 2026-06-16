@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { LogOut, Plus, Save, Trash2, Upload } from "lucide-react";
 import fallbackContent from "../data/siteContent.json";
-import { hasSupabaseConfig, supabase } from "../lib/supabase";
+import { activeSupabaseUrl, hasSupabaseConfig, supabase } from "../lib/supabase";
 import { getVideoEmbed } from "../lib/media";
 
 function makeProject() {
@@ -30,6 +30,15 @@ function withProjectIds(content) {
 
 const categories = ["AI Ads", "UGC", "Product Ads", "Podcasts", "Auto Detailing", "Food", "Talking Head", "Gaming", "Music", "Construction", "Automobile", "Long to Short"];
 
+function getSupabaseErrorMessage(error) {
+  const message = error?.message || String(error || "");
+  if (/failed to fetch|networkerror|load failed/i.test(message)) {
+    return `Supabase connection failed. Check VITE_SUPABASE_URL in Netlify. Current URL: ${activeSupabaseUrl}`;
+  }
+
+  return message;
+}
+
 function Field({ label, value, onChange, textarea = false }) {
   const Input = textarea ? "textarea" : "input";
   return (
@@ -56,9 +65,14 @@ export function AdminLogin() {
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setMessage(error.message);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setMessage(getSupabaseErrorMessage(error));
+        return;
+      }
+    } catch (error) {
+      setMessage(getSupabaseErrorMessage(error));
       return;
     }
 
