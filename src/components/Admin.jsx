@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { LogOut, Plus, Save, Trash2, Upload } from "lucide-react";
 import fallbackContent from "../data/siteContent.json";
-import { activeSupabaseUrl, hasSupabaseConfig, supabase } from "../lib/supabase";
 import { getVideoEmbed } from "../lib/media";
 
 function makeProject() {
@@ -29,14 +28,34 @@ function withProjectIds(content) {
 }
 
 const categories = ["AI Ads", "UGC", "Product Ads", "Podcasts", "Auto Detailing", "Food", "Talking Head", "Gaming", "Music", "Construction", "Automobile", "Long to Short"];
+const adminTokenKey = "portfolio_admin_token";
 
-function getSupabaseErrorMessage(error) {
-  const message = error?.message || String(error || "");
-  if (/failed to fetch|networkerror|load failed/i.test(message)) {
-    return `Supabase connection failed. Check VITE_SUPABASE_URL in Netlify. Current URL: ${activeSupabaseUrl}`;
+async function requestJson(path, options = {}) {
+  const response = await fetch(path, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
+      ...(options.headers || {}),
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || "Request failed. Please try again.");
   }
 
-  return message;
+  return data;
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 function Field({ label, value, onChange, textarea = false }) {
@@ -60,23 +79,17 @@ export function AdminLogin() {
 
   async function login(event) {
     event.preventDefault();
-    if (!hasSupabaseConfig) {
-      setMessage("Supabase env keys missing. Add them in Netlify first.");
-      return;
-    }
-
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setMessage(getSupabaseErrorMessage(error));
-        return;
-      }
+      const data = await requestJson("/api/admin/login", {
+        method: "POST",
+        body: { email, password },
+      });
+      localStorage.setItem(adminTokenKey, data.token);
+      window.location.href = "/admin-dashboard";
     } catch (error) {
-      setMessage(getSupabaseErrorMessage(error));
+      setMessage(error.message);
       return;
     }
-
-    window.location.href = "/admin-dashboard";
   }
 
   return (
@@ -113,21 +126,22 @@ export function AdminDashboard() {
 
   useEffect(() => {
     async function boot() {
-      if (!hasSupabaseConfig) {
-        setMessage("Supabase env keys missing. Add them in Netlify first.");
-        setSessionReady(true);
-        return;
-      }
-
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session) {
+      const token = localStorage.getItem(adminTokenKey);
+      if (!token) {
         window.location.href = "/admin-login";
         return;
       }
 
-      const { data } = await supabase.from("site_content").select("content").eq("id", "main").single();
-      if (data?.content?.portfolioItems?.length) setContent(withProjectIds(data.content));
-      setSessionReady(true);
+      try {
+        const data = await requestJson("/api/admin/content", { token });
+        if (data?.content?.portfolioItems?.length) setContent(withProjectIds(data.content));
+        setSessionReady(true);
+      } catch (error) {
+        localStorage.removeItem(adminTokenKey);
+        setMessage(error.message);
+        window.location.href = "/admin-login";
+        return;
+      }
     }
 
     boot();
@@ -145,28 +159,41 @@ export function AdminDashboard() {
   }
 
   async function uploadThumbnail(index, file) {
-    if (!file || !hasSupabaseConfig) return;
-    const cleanName = file.name.replace(/[^a-z0-9.\-_]/gi, "-").toLowerCase();
-    const path = `${Date.now()}-${cleanName}`;
-    const { error } = await supabase.storage.from("portfolio-media").upload(path, file, { upsert: true });
-    if (error) {
-      setMessage(error.message);
+    if (!file) return;
+    if (file.size > 1_500_000) {
+      setMessage("Thumbnail is too large. Use an image under 1.5MB or paste an image URL instead.");
       return;
     }
-    const { data } = supabase.storage.from("portfolio-media").getPublicUrl(path);
-    updateProject(index, "thumbnailUrl", data.publicUrl);
+
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      updateProject(index, "thumbnailUrl", dataUrl);
+      setMessage("Thumbnail added. Click Save to publish it.");
+    } catch (error) {
+      setMessage(error.message);
+    }
   }
 
   async function save() {
     setSaving(true);
     setMessage("");
-    const { error } = await supabase.from("site_content").upsert({ id: "main", content, updated_at: new Date().toISOString() });
-    setSaving(false);
-    setMessage(error ? error.message : "Saved. Website content updated.");
+    try {
+      const token = localStorage.getItem(adminTokenKey);
+      await requestJson("/api/admin/content", {
+        method: "PUT",
+        token,
+        body: { content },
+      });
+      setMessage("Saved. Website content updated.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function logout() {
-    await supabase.auth.signOut();
+    localStorage.removeItem(adminTokenKey);
     window.location.href = "/admin-login";
   }
 

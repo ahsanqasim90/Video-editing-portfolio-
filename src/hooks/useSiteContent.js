@@ -1,22 +1,28 @@
 import { useEffect, useState } from "react";
 import fallbackContent from "../data/siteContent.json";
-import { hasSupabaseConfig, supabase } from "../lib/supabase";
 
 export function useSiteContent() {
   const [content, setContent] = useState(fallbackContent);
-  const [loading, setLoading] = useState(hasSupabaseConfig);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadContent() {
-      if (!hasSupabaseConfig) return;
-
-      const { data, error } = await supabase.from("site_content").select("content").eq("id", "main").single();
-
-      if (isMounted) {
-        if (!error && data?.content?.portfolioItems?.length) setContent(data.content);
-        setLoading(false);
+      try {
+        const response = await fetch("/api/content");
+        const data = await response.json();
+        if (isMounted && data?.content?.portfolioItems?.length) {
+          setContent(data.content);
+        }
+      } catch {
+        if (isMounted) {
+          setContent(fallbackContent);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 

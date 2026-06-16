@@ -87,54 +87,35 @@ If your video is on Google Drive, YouTube, Vimeo, or Upwork, use that link in `v
 
 ## Edit From Website Admin
 
-This project includes a CMS admin page:
+This project includes a custom admin page:
 
 ```text
 /admin
-```
-
-For real online editing, deploy the GitHub repo to Netlify, then enable:
-
-- Netlify Identity
-- Git Gateway
-
-After that, open:
-
-```text
-https://your-site-name.netlify.app/admin
-```
-
-You can edit profile details, portfolio items, reviews, stats, skills, and upload thumbnail files from the website UI. The CMS saves changes back to GitHub automatically.
-
-## Custom Supabase Admin
-
-This project also supports a custom admin dashboard:
-
-```text
 /admin-login
 /admin-dashboard
 ```
 
-Supabase setup:
-
-1. Open Supabase project.
-2. Go to `SQL Editor`.
-3. Paste and run the contents of `supabase-setup.sql`.
-4. Go to `Project Settings > API`.
-5. Copy `Project URL` and `anon public` key.
-6. Add these variables in Netlify `Site configuration > Environment variables`:
+Deploy the GitHub repo to Vercel and add these environment variables in
+`Project Settings > Environment Variables`:
 
 ```text
-VITE_SUPABASE_URL=https://lheuyymjpykkwwmulmwn.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-public-key
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/video_editing_portfolio
+MONGODB_DB=video_editing_portfolio
+ADMIN_EMAIL=sanqasim205@gmail.com
+ADMIN_PASSWORD=your-secure-admin-password
+ADMIN_SECRET=your-random-secret-for-login-tokens
 ```
 
-7. Go to Supabase `Authentication > Users`.
-8. Create your admin user email/password.
-9. Redeploy Netlify.
-10. Open `/admin-login`.
+After that, redeploy Vercel and open:
 
-The admin dashboard saves portfolio content to Supabase and uploads thumbnails to Supabase Storage.
+```text
+https://your-site.vercel.app/admin
+```
+
+You can edit profile details, portfolio items, reviews, stats, skills, video links,
+and thumbnail images from the website UI. The dashboard saves portfolio content to
+MongoDB. Small uploaded thumbnails are stored as data URLs inside the saved content;
+for larger media, paste Google Drive, YouTube, Vimeo, or image URLs.
 
 ## Push To GitHub
 

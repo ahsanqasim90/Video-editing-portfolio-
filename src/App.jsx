@@ -186,7 +186,7 @@ function FilterPills({ active, setActive, options }) {
 }
 
 function App() {
-  if (window.location.pathname === "/admin-login") return <AdminLogin />;
+  if (window.location.pathname === "/admin" || window.location.pathname === "/admin-login") return <AdminLogin />;
   if (window.location.pathname === "/admin-dashboard") return <AdminDashboard />;
 
   const { content } = useSiteContent();
