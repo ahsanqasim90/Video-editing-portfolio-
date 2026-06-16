@@ -49,7 +49,15 @@ function Hero({ profile, stats }) {
     <section id="home" className="relative min-h-screen overflow-hidden pt-16">
       <div className="absolute inset-0 cinematic-bg" />
       <div className="absolute inset-0 opacity-60 timeline-grid" />
+      <div className="absolute inset-0 opacity-45 lens-vignette" />
       <div className="pointer-events-none absolute inset-x-0 top-24 h-px bg-gradient-to-r from-transparent via-cyan/50 to-transparent scan-line" />
+      <div className="pointer-events-none absolute inset-x-0 top-20 hidden overflow-hidden opacity-25 lg:block">
+        <div className="film-perf flex w-max gap-3">
+          {Array.from({ length: 42 }).map((_, index) => (
+            <span key={index} className="h-5 w-9 rounded-sm border border-white/20 bg-black/35" />
+          ))}
+        </div>
+      </div>
       <div className="pointer-events-none absolute bottom-12 left-0 right-0 hidden overflow-hidden opacity-60 lg:block">
         <div className="reel-marquee flex w-max gap-4">
           {[...serviceCategories.slice(0, 10), ...serviceCategories.slice(0, 10)].map((item, index) => (
@@ -61,19 +69,37 @@ function Hero({ profile, stats }) {
       </div>
       <motion.div
         aria-hidden="true"
-        className="absolute right-4 top-28 hidden w-[42vw] max-w-2xl lg:block"
+        className="absolute right-4 top-24 hidden w-[44vw] max-w-3xl lg:block"
         initial={{ opacity: 0, x: 80 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1 }}
       >
-        <div className="relative aspect-[4/3] rounded-lg border border-white/10 bg-black/30 p-5 shadow-premium backdrop-blur">
+        <div className="hero-console relative aspect-[4/3] rounded-lg border border-white/10 bg-black/30 p-5 shadow-premium backdrop-blur">
           <motion.div className="absolute -left-8 top-14 rounded-md border border-cyan/30 bg-cyan/10 px-4 py-3 text-xs font-bold uppercase tracking-[0.2em] text-cyan" animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity }}>
             AI scene
           </motion.div>
           <motion.div className="absolute right-8 top-8 rounded-md border border-gold/30 bg-gold/10 px-4 py-3 text-xs font-bold uppercase tracking-[0.2em] text-gold" animate={{ y: [0, 12, 0] }} transition={{ duration: 5, repeat: Infinity }}>
             Captions
           </motion.div>
-          <div className="h-2/3 rounded-md bg-[radial-gradient(circle_at_30%_30%,rgba(110,231,249,.32),transparent_30%),linear-gradient(135deg,#1c2030,#090a0f)] ring-1 ring-white/10" />
+          <div className="relative h-2/3 overflow-hidden rounded-md bg-[radial-gradient(circle_at_30%_30%,rgba(110,231,249,.32),transparent_30%),linear-gradient(135deg,#1c2030,#090a0f)] ring-1 ring-white/10">
+            <div className="absolute inset-0 video-noise" />
+            <div className="absolute left-5 top-5 flex gap-2">
+              {["HOOK", "CUT", "CTA"].map((tag) => (
+                <span key={tag} className="rounded bg-black/45 px-2 py-1 text-[10px] font-black tracking-[0.2em] text-cyan">{tag}</span>
+              ))}
+            </div>
+            <div className="absolute bottom-6 left-6 right-6 grid grid-cols-5 gap-3">
+              {[38, 66, 46, 88, 54].map((height, index) => (
+                <motion.span
+                  key={height}
+                  className="rounded-t bg-gradient-to-t from-coral via-gold to-cyan"
+                  animate={{ height: [`${height * 0.45}px`, `${height}px`, `${height * 0.6}px`] }}
+                  transition={{ duration: 1.6, delay: index * 0.12, repeat: Infinity, repeatType: "mirror" }}
+                />
+              ))}
+            </div>
+            <motion.div className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-white/18 to-transparent" animate={{ x: [-120, 720] }} transition={{ duration: 3.4, repeat: Infinity, ease: "linear" }} />
+          </div>
           <div className="mt-5 space-y-3">
             {[78, 44, 92].map((width, index) => (
               <div key={width} className="flex items-center gap-3">
@@ -85,6 +111,16 @@ function Hero({ profile, stats }) {
                   transition={{ duration: 1.5, delay: index * 0.2, repeat: Infinity, repeatType: "reverse" }}
                 />
               </div>
+            ))}
+          </div>
+          <div className="mt-5 grid grid-cols-6 gap-2">
+            {Array.from({ length: 18 }).map((_, index) => (
+              <motion.span
+                key={index}
+                className="h-12 rounded bg-white/8 ring-1 ring-white/10"
+                animate={{ opacity: [0.32, 0.85, 0.45] }}
+                transition={{ duration: 2.2, delay: index * 0.06, repeat: Infinity }}
+              />
             ))}
           </div>
         </div>
@@ -118,7 +154,7 @@ function Hero({ profile, stats }) {
           </div>
           <div className="mt-12 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-lg border border-white/10 bg-white/[0.045] p-4">
+              <div key={stat.label} className="card-sheen rounded-lg border border-white/10 bg-white/[0.045] p-4">
                 <p className="text-2xl font-semibold text-white">{stat.value}</p>
                 <p className="mt-1 text-xs leading-5 text-white/54">{stat.label}</p>
               </div>

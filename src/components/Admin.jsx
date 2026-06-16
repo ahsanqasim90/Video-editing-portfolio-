@@ -2,17 +2,31 @@ import React, { useEffect, useState } from "react";
 import { LogOut, Plus, Save, Trash2, Upload } from "lucide-react";
 import fallbackContent from "../data/siteContent.json";
 import { hasSupabaseConfig, supabase } from "../lib/supabase";
+import { getVideoEmbed } from "../lib/media";
 
-const emptyProject = {
-  title: "",
-  category: "AI Ads",
-  niche: "",
-  description: "",
-  tools: ["CapCut"],
-  result: "",
-  thumbnailUrl: "",
-  videoUrl: "",
-};
+function makeProject() {
+  return {
+    id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+    title: "",
+    category: "AI Ads",
+    niche: "",
+    description: "",
+    tools: ["CapCut"],
+    result: "",
+    thumbnailUrl: "",
+    videoUrl: "",
+  };
+}
+
+function withProjectIds(content) {
+  return {
+    ...content,
+    portfolioItems: (content.portfolioItems || []).map((item, index) => ({
+      ...item,
+      id: item.id || `project-${index}-${item.title || "untitled"}`,
+    })),
+  };
+}
 
 const categories = ["AI Ads", "UGC", "Product Ads", "Podcasts", "Auto Detailing", "Food", "Talking Head", "Gaming", "Music", "Construction", "Automobile", "Long to Short"];
 
@@ -79,7 +93,7 @@ export function AdminLogin() {
 
 export function AdminDashboard() {
   const [sessionReady, setSessionReady] = useState(false);
-  const [content, setContent] = useState(fallbackContent);
+  const [content, setContent] = useState(() => withProjectIds(fallbackContent));
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -98,7 +112,7 @@ export function AdminDashboard() {
       }
 
       const { data } = await supabase.from("site_content").select("content").eq("id", "main").single();
-      if (data?.content?.portfolioItems?.length) setContent(data.content);
+      if (data?.content?.portfolioItems?.length) setContent(withProjectIds(data.content));
       setSessionReady(true);
     }
 
@@ -184,7 +198,7 @@ export function AdminDashboard() {
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-semibold">Portfolio Items</h2>
             <button
-              onClick={() => setContent((current) => ({ ...current, portfolioItems: [emptyProject, ...current.portfolioItems] }))}
+              onClick={() => setContent((current) => ({ ...current, portfolioItems: [makeProject(), ...current.portfolioItems] }))}
               className="inline-flex min-h-10 items-center gap-2 rounded-full bg-white px-4 text-sm font-bold text-ink transition hover:bg-cyan"
             >
               <Plus className="h-4 w-4" />
@@ -192,8 +206,11 @@ export function AdminDashboard() {
             </button>
           </div>
           <div className="mt-5 grid gap-5">
-            {content.portfolioItems.map((item, index) => (
-              <article key={`${item.title}-${index}`} className="rounded-lg border border-white/10 bg-black/20 p-5">
+            {content.portfolioItems.map((item, index) => {
+              const videoEmbed = getVideoEmbed(item.videoUrl);
+
+              return (
+              <article key={item.id || index} className="rounded-lg border border-white/10 bg-black/20 p-5">
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Title" value={item.title} onChange={(value) => updateProject(index, "title", value)} />
                   <label className="grid gap-2 text-sm font-semibold text-white/70">
@@ -222,6 +239,23 @@ export function AdminDashboard() {
                     <Field label="Result" value={item.result} onChange={(value) => updateProject(index, "result", value)} textarea />
                   </div>
                 </div>
+                {videoEmbed?.type === "iframe" ? (
+                  <iframe
+                    src={videoEmbed.src}
+                    title={`${item.title || "Portfolio video"} preview`}
+                    allow="autoplay; fullscreen"
+                    allowFullScreen
+                    className="mt-4 aspect-video w-full rounded-md border border-white/10 bg-black"
+                  />
+                ) : null}
+                {videoEmbed?.type === "video" ? (
+                  <video src={videoEmbed.src} controls className="mt-4 aspect-video w-full rounded-md border border-white/10 bg-black object-contain" />
+                ) : null}
+                {videoEmbed?.type === "link" ? (
+                  <a href={videoEmbed.src} target="_blank" rel="noreferrer" className="mt-4 inline-flex rounded-full border border-cyan/30 px-4 py-2 text-sm font-bold text-cyan transition hover:bg-cyan hover:text-ink">
+                    Open video link
+                  </a>
+                ) : null}
                 {item.thumbnailUrl ? <img src={item.thumbnailUrl} alt="" className="mt-4 h-32 rounded-md object-cover" /> : null}
                 <button
                   onClick={() => setContent((current) => ({ ...current, portfolioItems: current.portfolioItems.filter((_, itemIndex) => itemIndex !== index) }))}
@@ -231,7 +265,8 @@ export function AdminDashboard() {
                   Delete
                 </button>
               </article>
-            ))}
+              );
+            })}
           </div>
         </section>
       </div>
