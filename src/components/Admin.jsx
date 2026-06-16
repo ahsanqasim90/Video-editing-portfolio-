@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { LogOut, Plus, Save, Trash2, Upload } from "lucide-react";
 import fallbackContent from "../data/siteContent.json";
 import { getVideoEmbed } from "../lib/media";
@@ -123,6 +124,7 @@ export function AdminDashboard() {
   const [content, setContent] = useState(() => withProjectIds(fallbackContent));
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [uploadingVideoIndex, setUploadingVideoIndex] = useState(null);
 
   useEffect(() => {
     async function boot() {
@@ -171,6 +173,33 @@ export function AdminDashboard() {
       setMessage("Thumbnail added. Click Save to publish it.");
     } catch (error) {
       setMessage(error.message);
+    }
+  }
+
+  async function uploadVideo(index, file) {
+    if (!file) return;
+    if (!file.type.startsWith("video/")) {
+      setMessage("Please choose a video file.");
+      return;
+    }
+
+    setUploadingVideoIndex(index);
+    setMessage("Uploading video. Please keep this tab open...");
+
+    try {
+      const token = localStorage.getItem(adminTokenKey);
+      const blob = await upload(`portfolio-videos/${Date.now()}-${file.name}`, file, {
+        access: "public",
+        handleUploadUrl: "/api/admin/upload-video",
+        clientPayload: JSON.stringify({ token }),
+      });
+
+      updateProject(index, "videoUrl", blob.url);
+      setMessage("Video uploaded. Click Save to publish this portfolio item.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setUploadingVideoIndex(null);
     }
   }
 
@@ -265,6 +294,15 @@ export function AdminDashboard() {
                   <Field label="Niche" value={item.niche} onChange={(value) => updateProject(index, "niche", value)} />
                   <Field label="Video URL" value={item.videoUrl} onChange={(value) => updateProject(index, "videoUrl", value)} />
                   <Field label="Tools comma separated" value={(item.tools || []).join(", ")} onChange={(value) => updateProject(index, "tools", value.split(",").map((tool) => tool.trim()).filter(Boolean))} />
+                  <label className="grid gap-2 text-sm font-semibold text-white/70">
+                    Upload Video
+                    <span className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md border border-cyan/20 bg-cyan/10 px-4 text-cyan transition hover:border-cyan hover:bg-cyan hover:text-ink">
+                      <Upload className="h-4 w-4" />
+                      {uploadingVideoIndex === index ? "Uploading..." : "Choose video"}
+                      <input type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime" onChange={(event) => uploadVideo(index, event.target.files?.[0])} className="hidden" />
+                    </span>
+                    <span className="text-xs font-medium text-white/45">MP4/WebM recommended. After upload, click Save.</span>
+                  </label>
                   <label className="grid gap-2 text-sm font-semibold text-white/70">
                     Upload Thumbnail
                     <span className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md border border-white/10 bg-black/30 px-4 text-white/70 transition hover:border-cyan hover:text-white">
