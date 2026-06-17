@@ -24,6 +24,7 @@ function withProjectIds(content) {
     portfolioItems: (content.portfolioItems || []).map((item, index) => ({
       ...item,
       id: item.id || `project-${index}-${item.title || "untitled"}`,
+      toolsText: item.toolsText || (item.tools || []).join(", "),
     })),
   };
 }
@@ -57,6 +58,23 @@ function fileToDataUrl(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+function parseTools(value) {
+  return value
+    .split(",")
+    .map((tool) => tool.trim())
+    .filter(Boolean);
+}
+
+function prepareContentForSave(content) {
+  return {
+    ...content,
+    portfolioItems: (content.portfolioItems || []).map(({ toolsText, ...item }) => ({
+      ...item,
+      tools: parseTools(toolsText || (item.tools || []).join(", ")),
+    })),
+  };
 }
 
 function Field({ label, value, onChange, textarea = false }) {
@@ -160,6 +178,15 @@ export function AdminDashboard() {
     }));
   }
 
+  function updateProjectTools(index, value) {
+    setContent((current) => ({
+      ...current,
+      portfolioItems: current.portfolioItems.map((item, itemIndex) => (
+        itemIndex === index ? { ...item, toolsText: value, tools: parseTools(value) } : item
+      )),
+    }));
+  }
+
   async function uploadThumbnail(index, file) {
     if (!file) return;
     if (file.size > 1_500_000) {
@@ -208,11 +235,13 @@ export function AdminDashboard() {
     setMessage("");
     try {
       const token = localStorage.getItem(adminTokenKey);
+      const contentToSave = prepareContentForSave(content);
       await requestJson("/api/admin/content", {
         method: "PUT",
         token,
-        body: { content },
+        body: { content: contentToSave },
       });
+      setContent(withProjectIds(contentToSave));
       setMessage("Saved. Website content updated.");
     } catch (error) {
       setMessage(error.message);
@@ -293,15 +322,20 @@ export function AdminDashboard() {
                   </label>
                   <Field label="Niche" value={item.niche} onChange={(value) => updateProject(index, "niche", value)} />
                   <Field label="Video URL" value={item.videoUrl} onChange={(value) => updateProject(index, "videoUrl", value)} />
-                  <Field label="Tools comma separated" value={(item.tools || []).join(", ")} onChange={(value) => updateProject(index, "tools", value.split(",").map((tool) => tool.trim()).filter(Boolean))} />
+                  <Field label="Tools, comma separated" value={item.toolsText ?? (item.tools || []).join(", ")} onChange={(value) => updateProjectTools(index, value)} />
                   <label className="grid gap-2 text-sm font-semibold text-white/70">
                     Upload Video
                     <span className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md border border-cyan/20 bg-cyan/10 px-4 text-cyan transition hover:border-cyan hover:bg-cyan hover:text-ink">
                       <Upload className="h-4 w-4" />
                       {uploadingVideoIndex === index ? "Uploading..." : "Choose video"}
-                      <input type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime" onChange={(event) => uploadVideo(index, event.target.files?.[0])} className="hidden" />
+                      <input type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime" disabled={uploadingVideoIndex === index} onChange={(event) => uploadVideo(index, event.target.files?.[0])} className="hidden" />
                     </span>
-                    <span className="text-xs font-medium text-white/45">MP4/WebM recommended. After upload, click Save.</span>
+                    <span className="text-xs font-medium text-white/45">MP4/WebM recommended. Wait for uploaded message, then click Save.</span>
+                    {item.videoUrl?.startsWith("https://") ? (
+                      <a href={item.videoUrl} target="_blank" rel="noreferrer" className="truncate text-xs font-bold text-cyan">
+                        Current video uploaded/open link
+                      </a>
+                    ) : null}
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-white/70">
                     Upload Thumbnail
