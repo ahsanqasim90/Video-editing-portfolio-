@@ -412,12 +412,14 @@ function Director() {
           Message From Our <span className="text-teal">Director</span>
         </h2>
         <div className="mt-14 grid gap-10 lg:grid-cols-[.85fr_1.35fr]">
-          <div className="grid min-h-96 place-items-center bg-darkNavy p-8 text-center text-white">
-            <div>
-              <span className="mx-auto grid h-28 w-28 place-items-center rounded-full border-2 border-teal text-teal">
-                <UsersRound className="h-14 w-14" />
-              </span>
-              <h3 className="mt-8 font-display text-2xl font-black">Muhammad Afzaal Khan</h3>
+          <div className="relative min-h-96 overflow-hidden bg-darkNavy text-center text-white">
+            <img
+              src="/media/ceo-muhammad-afzaal-khan.png"
+              alt="Muhammad Afzaal Khan, CEO and Director of Aziz Sons Engineering Works"
+              className="h-full min-h-96 w-full object-cover object-center"
+            />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy via-navy/78 to-transparent px-6 pb-8 pt-24">
+              <h3 className="font-display text-2xl font-black">Muhammad Afzaal Khan</h3>
               <p className="mt-3 text-xs font-black uppercase tracking-[0.24em] text-teal">CEO & Director</p>
             </div>
           </div>
