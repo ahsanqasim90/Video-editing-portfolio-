@@ -3,20 +3,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Arial Narrow", "Roboto Condensed", "Impact", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       colors: {
-        ink: "#08090d",
-        panel: "#11131b",
-        line: "rgba(255,255,255,0.12)",
-        gold: "#f4c76a",
-        cyan: "#6ee7f9",
-        coral: "#ff8066",
-        mint: "#8df0bf",
+        navy: "#0F172A",
+        darkNavy: "#1E293B",
+        teal: "#14B8A6",
+        lightBg: "#F8FAFC",
       },
       boxShadow: {
-        premium: "0 24px 90px rgba(0,0,0,0.45)",
-        glow: "0 0 60px rgba(110,231,249,0.16)",
+        premium: "0 24px 80px rgba(15,23,42,0.18)",
       },
     },
   },
