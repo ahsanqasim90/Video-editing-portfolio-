@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ArrowRight,
   Boxes,
@@ -34,10 +34,10 @@ const navItems = [
 ];
 
 const stats = [
-  ["8+", "Years of Experience"],
-  ["133+", "Projects Completed"],
-  ["3+", "Industries Served"],
-  ["26%", "Client Satisfaction"],
+  { value: 30, suffix: "+", label: "Years of Experience" },
+  { value: 500, suffix: "+", label: "Projects Completed" },
+  { value: 12, suffix: "+", label: "Industries Served" },
+  { value: 98, suffix: "%", label: "Client Satisfaction" },
 ];
 
 const capabilities = [
@@ -144,6 +144,43 @@ function SplitHeading({ first, accent, className = "", center = false }) {
   );
 }
 
+function AnimatedStat({ value, suffix }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let frameId;
+    let timerId;
+    const duration = 1500;
+
+    timerId = window.setTimeout(() => {
+      const start = performance.now();
+      const tick = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setCount(Math.round(value * eased));
+
+        if (progress < 1) {
+          frameId = requestAnimationFrame(tick);
+        }
+      };
+
+      frameId = requestAnimationFrame(tick);
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timerId);
+      if (frameId) cancelAnimationFrame(frameId);
+    };
+  }, [value]);
+
+  return (
+    <span>
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
 function Header() {
   const [open, setOpen] = useState(false);
 
@@ -220,9 +257,11 @@ function Hero() {
       </div>
       <div className="relative border-y border-white/12 bg-darkNavy/88">
         <div className="mx-auto grid max-w-7xl grid-cols-2 lg:grid-cols-4">
-          {stats.map(([value, label]) => (
+          {stats.map(({ value, suffix, label }) => (
             <div key={label} className="border-white/12 px-5 py-7 text-center first:border-l-0 lg:border-l">
-              <p className="font-display text-4xl font-black text-white">{value}</p>
+              <p className="font-display text-4xl font-black text-white">
+                <AnimatedStat value={value} suffix={suffix} />
+              </p>
               <p className="mt-2 text-xs font-bold uppercase tracking-[0.26em] text-teal">{label}</p>
             </div>
           ))}
@@ -503,8 +542,15 @@ function Contact() {
             </button>
           </form>
         </div>
-        <div className="mt-10 min-h-64 bg-darkNavy p-5 text-white">
-          <div className="inline-flex items-center gap-2 bg-navy px-4 py-3 text-sm font-black">
+        <div className="relative mt-10 h-[260px] overflow-hidden bg-darkNavy text-white sm:h-[320px]">
+          <iframe
+            title="Aziz Sons Engineering Works location map"
+            src="https://www.google.com/maps?q=Abdul%20Qayyum%20Road%2C%20Badami%20Bagh%2C%20Lahore%2C%20Pakistan&output=embed"
+            className="h-full w-full border-0 grayscale"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+          <div className="absolute left-4 top-4 inline-flex items-center gap-2 bg-navy px-4 py-3 text-sm font-black shadow-xl sm:left-6 sm:top-6">
             <MapPin className="h-4 w-4 text-teal" /> Badami Bagh, Lahore
           </div>
         </div>
